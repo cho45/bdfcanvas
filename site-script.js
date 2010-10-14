@@ -213,5 +213,17 @@ $(function () {
 				font.drawText(ctx, line, 10, 10 + (i * 14));
 			}
 		}
+		$('#input').keyup(function () {
+			var text = $(this).val();
+			var canvas = document.getElementById('canvas');
+			var ctx    = canvas.getContext('2d');
+			ctx.fillStyle = '#000';
+			ctx.clearRect(0, 4 * 14, 1000, 200);
+			var lines  = text.split(/\n/);
+			for (var i = 0, len = lines.length; i < len; i++) {
+				var line = lines[i];
+				font.drawText(ctx, line, 10, 10 + ((i + 4) * 14));
+			}
+		}).keyup();
 	})
 });
