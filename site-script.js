@@ -127,6 +127,19 @@ BDFFont.prototype = {
 			x = r.x; y = r.y;
 		}
 		return { x: x, y: y };
+	},
+
+	drawEdgeText : function (ctx, text, x, y) {
+		var self = this;
+		self.drawText(ctx, text, x + -1, y + -1);
+		self.drawText(ctx, text, x +  0, y + -1);
+		self.drawText(ctx, text, x +  1, y + -1);
+		self.drawText(ctx, text, x + -1, y +  0);
+		self.drawText(ctx, text, x +  0, y +  0);
+		self.drawText(ctx, text, x +  1, y +  0);
+		self.drawText(ctx, text, x + -1, y +  1);
+		self.drawText(ctx, text, x +  0, y +  1);
+		self.drawText(ctx, text, x +  1, y +  1);
 	}
 };
 
@@ -186,6 +199,17 @@ $(function () {
 			var lines  = text.split(/\n/);
 			for (var i = 0, len = lines.length; i < len; i++) {
 				var line = lines[i];
+				font.drawText(ctx, line, 10, 10 + (i * 14));
+			}
+
+			ctx.translate(0, i * 14);
+
+			var lines  = text.split(/\n/);
+			for (var i = 0, len = lines.length; i < len; i++) {
+				var line = lines[i];
+				ctx.fillStyle = '#000';
+				font.drawEdgeText(ctx, line, 10, 10 + (i * 14));
+				ctx.fillStyle = '#fff';
 				font.drawText(ctx, line, 10, 10 + (i * 14));
 			}
 		}
