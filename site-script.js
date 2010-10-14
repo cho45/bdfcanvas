@@ -101,9 +101,15 @@ BDFFont.prototype = {
 		}
 	},
 
-	drawChar : function (ctx, c, bx, by) {
+	drawChar : function (ctx, c, bx, by, t) {
 		var self = this;
 		var g = self.glyphs[ c ] || self.glyphs[ self.properties['DEFAULT_CHAR'] ];
+		if (t) {
+			var f = function () {};
+			f.prototype = g;
+			g = new f();
+			g = t(g);
+		};
 		var n = g['BBw'];
 		var b = g['BITMAP'];
 		var ox = bx + g['BBox'] - 1;
@@ -119,33 +125,40 @@ BDFFont.prototype = {
 		return { x: bx + g['DWIDTH'].x, y : by + g['DWIDTH'].y };
 	},
 
-	drawText : function (ctx, text, x, y) {
+	drawText : function (ctx, text, x, y, t) {
 		var self = this;
 		for (var i = 0, len = text.length; i < len; i++) {
 			var c = text[i].charCodeAt(0);
-			var r = self.drawChar(ctx, c, x, y);
+			var r = self.drawChar(ctx, c, x, y, t);
 			x = r.x; y = r.y;
 		}
 		return { x: x, y: y };
 	},
 
-	drawEdgeText : function (ctx, text, x, y) {
+	drawEdgeText : function (ctx, text, x, y, t) {
 		var self = this;
-		self.drawText(ctx, text, x + -1, y + -1);
-		self.drawText(ctx, text, x +  0, y + -1);
-		self.drawText(ctx, text, x +  1, y + -1);
-		self.drawText(ctx, text, x + -1, y +  0);
-		self.drawText(ctx, text, x +  0, y +  0);
-		self.drawText(ctx, text, x +  1, y +  0);
-		self.drawText(ctx, text, x + -1, y +  1);
-		self.drawText(ctx, text, x +  0, y +  1);
-		self.drawText(ctx, text, x +  1, y +  1);
+		self.drawText(ctx, text, x, y, function (g) {
+			var bitmap =  new Array(g['BITMAP'].length + 2);
+			bitmap.bits = g['BITMAP'].bits + 2;
+			for (var i = -1, len = bitmap.length; i < len; i++) {
+				bitmap[i+1] = g['BITMAP'][i]   | g['BITMAP'][i]   >> 1 | g['BITMAP'][i]   >> 2 |
+				              g['BITMAP'][i+1] | g['BITMAP'][i+1] >> 1 | g['BITMAP'][i+1] >> 2 |
+				              g['BITMAP'][i-1] | g['BITMAP'][i-1] >> 1 | g['BITMAP'][i-1] >> 2 ;
+			}
+			g['BITMAP'] = bitmap;
+			g['BBox']  += -3;
+			g['BBoy']  +=  1;
+			return g;
+		});
 	}
 };
 
-$(function () {
+function drawGlyphs (cb) {
 	var canvas = document.getElementById('glyphs');
 	var ctx  = canvas.getContext('2d');
+
+	ctx.save();
+	ctx.clearRect(0, 0, 1000, 200);
 	// draw grid
 	ctx.fillStyle = '#000';
 	ctx.translate(0, 0);
@@ -182,12 +195,30 @@ $(function () {
 	ctx.fillStyle = '#f00';
 	ctx.fillRect(0, 0, 1, 1);
 
-	$.get('./mplus_f10r.bdf', function (data) {
+	cb(ctx);
+
+	ctx.restore();
+}
+
+$(function () {
+	drawGlyphs(function () { });
+
+	var fontURI = location.hash ? location.hash.substring(1) : './mplus_f10r.bdf';
+
+	$.get(fontURI, function (data) {
 	//$.get('./mplus_j10r-unicode.bdf', function (data) {
 		var font = new BDFFont(data);
-		ctx.fillStyle = '#000';
-		var text = 'All your base are belong to us';
-		font.drawText(ctx, text, 0, 0);
+		$('#input1, #edge').bind('change keyup', function () {
+			var text = $('#input1').val();
+			drawGlyphs(function (ctx) {
+				ctx.fillStyle = '#000';
+				if ($('#edge:checked').length) {
+					font.drawEdgeText(ctx, text, 0, 0);
+					ctx.fillStyle = '#fff';
+				}
+				font.drawText(ctx, text, 0, 0);
+			});
+		}).keyup();
 
 		new function () {
 			var canvas = document.getElementById('canvas');
@@ -213,17 +244,18 @@ $(function () {
 				font.drawText(ctx, line, 10, 10 + (i * 14));
 			}
 		}
-		$('#input').keyup(function () {
+
+		$('#input2').keyup(function () {
 			var text = $(this).val();
 			var canvas = document.getElementById('canvas');
 			var ctx    = canvas.getContext('2d');
 			ctx.fillStyle = '#000';
 			ctx.clearRect(0, 4 * 14, 1000, 200);
-			var lines  = text.split(/\n/);
-			for (var i = 0, len = lines.length; i < len; i++) {
-				var line = lines[i];
-				font.drawText(ctx, line, 10, 10 + ((i + 4) * 14));
-			}
+			font.drawText(ctx, text, 10, 10 + ((1 + 4) * 14));
+
+			font.drawEdgeText(ctx, text, 10, 10 + ((2 + 4) * 14));
+			ctx.fillStyle = '#fff';
+			font.drawText(ctx, text, 10, 10 + ((2 + 4) * 14));
 		}).keyup();
 	})
 });
