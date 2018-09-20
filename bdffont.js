@@ -1,4 +1,4 @@
-function BDFFont () { this.init.apply(this, arguments) };
+function BDFFont () { this.init.apply(this, arguments) }
 BDFFont.prototype = {
 	init : function (bdf) {
 		var self = this;
@@ -16,36 +16,36 @@ BDFFont.prototype = {
 			var line = lines[i];
 
 			if (glyph) {
-				if (line != 'ENDCHAR') {
+				if (line !== 'ENDCHAR') {
 					if (!glyph['BITMAP']) {
 						var d = line.split(' ');
 						switch (d[0]) {
-							case 'ENCODING':
-								glyph['ENCODING'] = +d[1];
-								break;
-							case 'SWIDTH':
-								glyph['SWIDTH'] = {
-									x: +d[1],
-									y: +d[2]
-								};
-								break;
-							case 'DWIDTH':
-								glyph['DWIDTH'] = {
-									x: +d[1],
-									y: +d[2]
-								};
-								break;
-							case 'BBX':
-								glyph['BBw']  = +d[1];
-								glyph['BBh']  = +d[2];
-								glyph['BBox'] = +d[3];
-								glyph['BBoy'] = +d[4];
-								break;
-							case 'ATTRIBUTES':
-								break;
-							case 'BITMAP':
-								glyph['BITMAP'] = [];
-								break;
+						case 'ENCODING':
+							glyph['ENCODING'] = +d[1];
+							break;
+						case 'SWIDTH':
+							glyph['SWIDTH'] = {
+								x: +d[1],
+								y: +d[2]
+							};
+							break;
+						case 'DWIDTH':
+							glyph['DWIDTH'] = {
+								x: +d[1],
+								y: +d[2]
+							};
+							break;
+						case 'BBX':
+							glyph['BBw']  = +d[1];
+							glyph['BBh']  = +d[2];
+							glyph['BBox'] = +d[3];
+							glyph['BBoy'] = +d[4];
+							break;
+						case 'ATTRIBUTES':
+							break;
+						case 'BITMAP':
+							glyph['BITMAP'] = [];
+							break;
 						}
 					} else {
 						glyph['BITMAP'].bits = line.length * 4;
@@ -56,9 +56,9 @@ BDFFont.prototype = {
 					glyph = null;
 				}
 			} else if (properties) {
-				if (line != 'ENDPROPERTIES') {
+				if (line !== 'ENDPROPERTIES') {
 					var d = line.split(' ', 2);
-					properties[ d[0] ] = (d[1][0] == '"') ? d[1].substring(1, d[1].length - 2): +d[1];
+					properties[ d[0] ] = (d[1][0] === '"') ? d[1].substring(1, d[1].length - 2): +d[1];
 				} else {
 					self.properties = properties;
 					properties = null;
@@ -66,35 +66,36 @@ BDFFont.prototype = {
 			} else {
 				var d = line.split(' ');
 				switch (d[0]) {
-					case 'COMMENT': break;
-					case 'FONT':
-						self['FONT'] = d[1];
-						break;
-					case 'SIZE':
-						self['SIZE'] = {
-							size : +d[1],
-							xres : +d[2],
-							yres : +d[3]
-						};
-						break;
-					case 'FONTBOUNDINGBOX':
-						self['FONTBOUNDINGBOX'] = {
-							w : +d[1],
-							h : +d[2],
-							x : +d[3],
-							y : +d[4]
-						};
-						break;
-					case 'STARTPROPERTIES':
-						properties = {};
-						break;
-					case 'CHARS':
-						self['CHARS'] = +d[1];
-						break;
-					case 'STARTCHAR':
-						glyph = {};
-					case 'ENDCHAR':
-						break;
+				case 'COMMENT': break;
+				case 'FONT':
+					self['FONT'] = d[1];
+					break;
+				case 'SIZE':
+					self['SIZE'] = {
+						size : +d[1],
+						xres : +d[2],
+						yres : +d[3]
+					};
+					break;
+				case 'FONTBOUNDINGBOX':
+					self['FONTBOUNDINGBOX'] = {
+						w : +d[1],
+						h : +d[2],
+						x : +d[3],
+						y : +d[4]
+					};
+					break;
+				case 'STARTPROPERTIES':
+					properties = {};
+					break;
+				case 'CHARS':
+					self['CHARS'] = +d[1];
+					break;
+				case 'STARTCHAR':
+					glyph = {};
+					break;
+				case 'ENDCHAR':
+					break;
 				}
 			}
 		}
@@ -108,7 +109,7 @@ BDFFont.prototype = {
 			f.prototype = g;
 			g = new f();
 			g = t(g);
-		};
+		}
 		var n = g['BBw'];
 		var b = g['BITMAP'];
 		var ox = bx + g['BBox'] - 1;
@@ -140,9 +141,10 @@ BDFFont.prototype = {
 			var bitmap =  new Array(g['BITMAP'].length + 2);
 			bitmap.bits = g['BITMAP'].bits + 2;
 			for (var i = -1, len = bitmap.length; i < len; i++) {
-				bitmap[i+1] = g['BITMAP'][i]   | g['BITMAP'][i]   >> 1 | g['BITMAP'][i]   >> 2 |
-				              g['BITMAP'][i+1] | g['BITMAP'][i+1] >> 1 | g['BITMAP'][i+1] >> 2 |
-				              g['BITMAP'][i-1] | g['BITMAP'][i-1] >> 1 | g['BITMAP'][i-1] >> 2 ;
+				bitmap[i+1] =
+					g['BITMAP'][i]   | g['BITMAP'][i]   >> 1 | g['BITMAP'][i]   >> 2 |
+					g['BITMAP'][i+1] | g['BITMAP'][i+1] >> 1 | g['BITMAP'][i+1] >> 2 |
+					g['BITMAP'][i-1] | g['BITMAP'][i-1] >> 1 | g['BITMAP'][i-1] >> 2 ;
 			}
 			g['BITMAP'] = bitmap;
 			g['BBox']  += -3;
