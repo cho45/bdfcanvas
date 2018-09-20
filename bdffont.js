@@ -152,3 +152,4 @@ BDFFont.prototype = {
 	}
 };
 
+this.BDFFont = BDFFont;

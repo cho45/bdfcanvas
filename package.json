@@ -1,0 +1,23 @@
+{
+  "name": "bdf-canvas",
+  "version": "1.0.0",
+  "description": "BDF Font drawer for Canvas API",
+  "main": "bdffont.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/cho45/bdfcanvas.git"
+  },
+  "keywords": [
+    "bdf",
+    "font"
+  ],
+  "author": "cho45",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cho45/bdfcanvas/issues"
+  },
+  "homepage": "https://github.com/cho45/bdfcanvas#readme"
+}
