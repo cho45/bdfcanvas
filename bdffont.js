@@ -101,9 +101,14 @@ BDFFont.prototype = {
 		}
 	},
 
+	getGlyphOf: function (c) {
+		var self = this;
+		return self.glyphs[ c ] || self.glyphs[ self.properties['DEFAULT_CHAR'] ];
+	},
+
 	drawChar : function (ctx, c, bx, by, t) {
 		var self = this;
-		var g = self.glyphs[ c ] || self.glyphs[ self.properties['DEFAULT_CHAR'] ];
+		var g = this.getGlyphOf(c);
 		if (t) {
 			var f = function () {};
 			f.prototype = g;
@@ -123,6 +128,21 @@ BDFFont.prototype = {
 			}
 		}
 		return { x: bx + g['DWIDTH'].x, y : by + g['DWIDTH'].y };
+	},
+
+	measureText: function (text) {
+		var self = this;
+		var ret = {
+			width: 0,
+			height: 0
+		};
+		for (var i = 0, len = text.length; i < len; i++) {
+			var c = text[i].charCodeAt(0);
+			var g = self.getGlyphOf(c);
+			ret.width += g['DWIDTH'].x;
+			ret.height += g['DWIDTH'].y;
+		}
+		return ret;
 	},
 
 	drawText : function (ctx, text, x, y, t) {

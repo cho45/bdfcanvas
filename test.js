@@ -1,6 +1,5 @@
 #!node
 var fs = require('fs');
-var sys = require('sys');
 
 MockCanvasContext2d = function () { this.init.apply(this, arguments) };
 MockCanvasContext2d.prototype = {
@@ -25,7 +24,9 @@ MockCanvasContext2d.prototype = {
 			for (var x = sx; x < ex; x++) {
 				try {
 					bitmap[y][x] = this.fillStyle;
-				} catch (e) {}
+				} catch (e) {
+					// no warnings
+				}
 			}
 		}
 	},
@@ -37,7 +38,9 @@ MockCanvasContext2d.prototype = {
 			for (var x = sx; x < ex; x++) {
 				try {
 					bitmap[y][x] = 0;
-				} catch (e) {}
+				} catch (e) {
+					// no warnings
+				}
 			}
 		}
 	},
@@ -64,7 +67,7 @@ MockCanvasContext2d.prototype = {
 function sameBitmap (got, expected) {
 	got = got.join("\n");
 	expected = expected.join("\n");
-	if (got == expected) {
+	if (got === expected) {
 		console.log("ok");
 	} else {
 		console.log("ng");
@@ -72,6 +75,18 @@ function sameBitmap (got, expected) {
 		console.log(got.replace(/^/mg, '\t '));
 		console.log("expected:");
 		console.log(expected.replace(/^/mg, '\t '));
+	}
+}
+
+function is (got, expected) {
+	if (got === expected) {
+		console.log("ok");
+	} else {
+		console.log("ng");
+		console.log("got:");
+		console.log(got);
+		console.log("expected:");
+		console.log(expected);
 	}
 }
 
@@ -100,6 +115,9 @@ sameBitmap(
 ctx.clearRect(0, 0, 20, 20);
 
 font.drawText(ctx, 'for', 1, 10);
+is(font.measureText('f').width, 6);
+is(font.measureText('for').width, 18);
+is(font.measureText('for').height, 0);
 
 sameBitmap(
 	ctx.dumpBitMap(0, 4, 19, 7),
