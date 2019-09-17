@@ -41,37 +41,37 @@ function drawGlyphs (cb) {
 	ctx.fillStyle = '#f00';
 	ctx.fillRect(0, 0, 1, 1);
 
-	cb(ctx);
+	if (cb) cb(ctx);
 
 	ctx.restore();
 }
 
 $(function () {
-	drawGlyphs(function () { });
+	drawGlyphs();
 
 	var fontURI = location.hash ? location.hash.substring(1) : './mplus_f10r.bdf';
+	var font;
 
-	$.get(fontURI, function (data) {
-	//$.get('./mplus_j10r-unicode.bdf', function (data) {
-		var font = new BDFFont(data);
-		$('#input1, #edge').bind('change keyup', function () {
-			var text = $('#input1').val();
-			drawGlyphs(function (ctx) {
-				ctx.fillStyle = '#000';
-				if ($('#edge:checked').length) {
-					font.drawEdgeText(ctx, text, 0, 0);
-					ctx.fillStyle = '#fff';
-				}
-				font.drawText(ctx, text, 0, 0);
-			});
-		}).keyup();
+	function redraw() {
+		if (!font) return;
+
+		var text = $('#input1').val();
+		drawGlyphs(function (ctx) {
+			ctx.fillStyle = '#000';
+			if ($('#edge:checked').length) {
+				font.drawEdgeText(ctx, text, 0, 0);
+				ctx.fillStyle = '#fff';
+			}
+			font.drawText(ctx, text, 0, 0);
+		});
 
 		new function () {
 			var canvas = document.getElementById('canvas');
 			var ctx    = canvas.getContext('2d');
 			var text   = "All your base are belong to us.\n";
-			text += 'The canvas element provides scripts with a resolution-dependent bitmap canvas, which can be used for rendering graphs, game graphics, or other visual images on the fly.';
-			
+
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+
 			ctx.fillStyle = '#000';
 			var lines  = text.split(/\n/);
 			for (var i = 0, len = lines.length; i < len; i++) {
@@ -79,6 +79,7 @@ $(function () {
 				font.drawText(ctx, line, 10, 10 + (i * 14));
 			}
 
+			ctx.save();
 			ctx.translate(0, i * 14);
 
 			var lines  = text.split(/\n/);
@@ -89,19 +90,39 @@ $(function () {
 				ctx.fillStyle = '#fff';
 				font.drawText(ctx, line, 10, 10 + (i * 14));
 			}
+
+			ctx.restore();
 		}
 
-		$('#input2').keyup(function () {
-			var text = $(this).val();
-			var canvas = document.getElementById('canvas');
-			var ctx    = canvas.getContext('2d');
-			ctx.fillStyle = '#000';
-			ctx.clearRect(0, 4 * 14, 1000, 200);
-			font.drawText(ctx, text, 10, 10 + ((1 + 4) * 14));
+		var text = $(this).val();
+		var canvas = document.getElementById('canvas');
+		var ctx    = canvas.getContext('2d');
+		ctx.fillStyle = '#000';
+		ctx.clearRect(0, 4 * 14, 1000, 200);
+		font.drawText(ctx, text, 10, 10 + ((1 + 4) * 14));
 
-			font.drawEdgeText(ctx, text, 10, 10 + ((2 + 4) * 14));
-			ctx.fillStyle = '#fff';
-			font.drawText(ctx, text, 10, 10 + ((2 + 4) * 14));
-		}).keyup();
+		font.drawEdgeText(ctx, text, 10, 10 + ((2 + 4) * 14));
+		ctx.fillStyle = '#fff';
+		font.drawText(ctx, text, 10, 10 + ((2 + 4) * 14));
+	}
+
+	$.get(fontURI, function (data) {
+		console.log('loaded default font', data);
+		font = new BDFFont(data);
+		redraw();
 	})
+
+	$('#input1, #edge').bind('change keyup', redraw);
+
+	$('#input2').keyup(redraw);
+
+	$('#file').change(function (e) {
+		const file = e.target.files[0];
+		const reader = new FileReader();
+		reader.onload = function () {
+			font = new BDFFont(reader.result);
+			redraw();
+		};
+		reader.readAsText(file);
+	});
 });
