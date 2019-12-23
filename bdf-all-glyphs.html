@@ -4,7 +4,7 @@
 		<meta charset="utf-8"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 
-		<title></title>
+		<title>BDF Font Glyph Viewer</title>
 
 		<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,500,700,400italic|Material+Icons">
 		<link rel="stylesheet" href="https://unpkg.com/vue-material/dist/vue-material.min.css">
@@ -40,6 +40,9 @@
 		<div id="app">
 			<input type="file" ref="file" v-on:change="fileChanged" style="display: none">
 			<md-button class="md-primary md-raised" @click="$refs.file.click()">Load font</md-button>
+			<hr/>
+			<md-button class="md-primary md-raised" @click="generateSource">Generate C source code...</md-button>
+			<hr/>
 
 			{{ font.FONT }}
 			{{ font.CHARS }} characters
