@@ -5,8 +5,8 @@ This library is for parsing BDF Font and drawint it to canvas.
 
 ## Usage
 
-```
-const BDFFont = require("bdf-canvas");
+```js
+const BDFFont = require("bdf-canvas").BDFFont;
 
 const ctx = canvas.getContext("2d");
 
