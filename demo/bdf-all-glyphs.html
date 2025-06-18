@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+
+		<title>BDF Font Glyph Viewer</title>
+
+		<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,500,700,400italic|Material+Icons">
+		<script src="bdf-all-glyphs.js" defer type="module"></script>
+
+		<link rev="made" href="mailto:cho45@lowreal.net"/>
+		<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+		<style>
+			body {
+				font-family: 'Roboto', system-ui, sans-serif;
+				background: #f5f7fa;
+				color: #222;
+				margin: 0;
+				padding: 0 0 40px 0;
+			}
+			#app {
+				max-width: 1200px;
+				margin: 0 auto;
+				padding: 32px 16px;
+				background: #fff;
+				border-radius: 12px;
+				box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+			}
+			button {
+				appearance: none;
+				border: none;
+				background: #1976d2;
+				color: #fff;
+				padding: 12px 28px;
+				border-radius: 6px;
+				font-size: 1rem;
+				font-weight: 600;
+				cursor: pointer;
+				box-shadow: 0 2px 8px rgba(25, 118, 210, 0.10);
+				transition: background 0.2s, box-shadow 0.2s;
+				margin: 0 12px 20px 0;
+				outline: none;
+				display: inline-block;
+			}
+			button:hover, button:focus {
+				background: #1565c0;
+				box-shadow: 0 4px 16px rgba(25, 118, 210, 0.18);
+			}
+			input[type="file"] {
+				display: none;
+			}
+			label.file-label {
+				display: inline-block;
+				background: #f0f4fa;
+				color: #1976d2;
+				border: 2px dashed #90caf9;
+				border-radius: 6px;
+				padding: 12px 28px;
+				font-size: 1rem;
+				font-weight: 500;
+				cursor: pointer;
+				margin-bottom: 20px;
+				transition: background 0.2s, border 0.2s;
+				vertical-align: middle;
+			}
+			label.file-label:active, label.file-label:focus {
+				background: #e3f2fd;
+				border-color: #1976d2;
+			}
+			hr {
+				border: none;
+				height: 1px;
+				background: #e0e0e0;
+				margin: 32px 0;
+			}
+			td {
+				height: 200px;
+				width: 80px;
+				padding: 10px;
+			}
+			canvas {
+				max-width: 100%;
+				max-height: 100%;
+				outline: 2px solid #90caf9;
+				border-radius: 4px;
+				background: #f8fafc;
+			}
+			.none {
+				color: #b0b0b0;
+				text-align: center;
+				line-height: 200px;
+				font-size: 1.1em;
+			}
+			table {
+				border-collapse: separate;
+				border-spacing: 0 8px;
+				width: 100%;
+			}
+			th {
+				background: #e3f2fd;
+				color: #1976d2;
+				font-weight: 600;
+				padding: 8px 0;
+				border-radius: 4px;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="app">
+			<input type="file" ref="file" v-on:change="fileChanged">
+			<button class="file-label" tabindex="0" @keydown.enter="$refs.file.click()" @click="$refs.file.click()">
+				Load Font
+			</button>
+			<button @click="generateSource">Generate C source code...</button>
+			<hr/>
+
+			<p>
+				{{ font.FONT }}
+				{{ font.CHARS }} characters
+				{{ font.SIZE.size }}pt {{ font.SIZE.xres }}dpi x {{ font.SIZE.yres }}dpi
+			</p>
+			<div ref="glyphs">
+				<table>
+					<tr>
+						<th></th>
+						<th>0</th>
+						<th>1</th>
+						<th>2</th>
+						<th>3</th>
+						<th>4</th>
+						<th>5</th>
+						<th>6</th>
+						<th>7</th>
+						<th>8</th>
+						<th>9</th>
+					</tr>
+					<tr v-for="row in rows">
+						<th>{{ row }}</th>
+						<td v-for="col in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]">
+							<div v-if="hasGlyph(row + col)" :title="row + col">
+								<bdf-glyph :font="font" :glyph="row + col"></bdf-glyph>
+							</div>
+							<div v-else class="none">
+								{{ row + col }}
+							</div>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>BDF Font on Canvas - Modern ESM Demo</title>
+		<style>
+			body {
+				font-family: system-ui, -apple-system, sans-serif;
+				max-width: 1200px;
+				margin: 0 auto;
+				padding: 20px;
+			}
+			canvas {
+				border: 1px solid #ccc;
+				display: block;
+				margin: 10px 0;
+			}
+			input[type="text"] {
+				width: 500px;
+				padding: 8px;
+				margin: 5px;
+			}
+			input[type="file"] {
+				margin: 5px;
+			}
+			label {
+				margin: 0 10px;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>BDF Font on Canvas</h1>
+		<p>
+			Custom font file:
+			<input type="file" id="file" accept=".bdf"/>
+		</p>
+
+		<div>
+			<h2>Debug: Glyphs x10</h2>
+			<p>
+				<input type="text" id="input1" value="All your base" placeholder="Enter text to render"/>
+				<label><input type="checkbox" id="edge" value="edge"/>Edge effect</label>
+			</p>
+			<canvas id="glyphs" width="1000" height="200"></canvas>
+		</div>
+
+		<div>
+			<h2>Real Scale</h2>
+			<p>
+				<input type="text" id="input2" value="Hello, World!" placeholder="Enter text to render"/>
+			</p>
+			<canvas id="canvas" width="1000" height="200"></canvas>
+		</div>
+
+		<script type="module" src="site-script.js"></script>
+
+		<div>
+			<a href="./bdf-all-glyphs.html">Show All glyphs</a>
+		</div>
+
+		<div>
+			<a href="http://mplus-fonts.sourceforge.jp/mplus-bitmap-fonts/index.html">M+ BITMAP</a>
+		</div>
+	</body>
+</html>

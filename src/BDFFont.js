@@ -1,24 +1,25 @@
-function BDFFont () { this.init.apply(this, arguments) }
-BDFFont.prototype = {
-	init : function (bdf) {
-		var self = this;
-		self.glyphs = {};
-		self.properties = {};
-		self.parse(bdf);
-	},
+export class BDFFont {
+	constructor() {
+		this.init.apply(this, arguments);
+	}
 
-	parse : function (bdf) {
-		var self = this;
-		var lines = bdf.split(/\n/);
+	init(bdf) {
+		this.glyphs = {};
+		this.properties = {};
+		this.parse(bdf);
+	}
 
-		var glyph = null, properties = null;
-		for (var i = 0, len = lines.length; i < len; i++) {
-			var line = lines[i];
+	parse(bdf) {
+		const lines = bdf.split(/\n/);
+
+		let glyph = null, properties = null;
+		for (let i = 0, len = lines.length; i < len; i++) {
+			const line = lines[i];
 
 			if (glyph) {
 				if (line !== 'ENDCHAR') {
 					if (!glyph['BITMAP']) {
-						var d = line.split(' ');
+						const d = line.split(' ');
 						switch (d[0]) {
 						case 'ENCODING':
 							glyph['ENCODING'] = +d[1];
@@ -52,33 +53,33 @@ BDFFont.prototype = {
 						glyph['BITMAP'].push(parseInt(line, 16));
 					}
 				} else {
-					self.glyphs[glyph['ENCODING']] = glyph;
+					this.glyphs[glyph['ENCODING']] = glyph;
 					glyph = null;
 				}
 			} else if (properties) {
 				if (line !== 'ENDPROPERTIES') {
-					var d = line.split(' ', 2);
+					const d = line.split(' ', 2);
 					properties[ d[0] ] = (d[1][0] === '"') ? d[1].substring(1, d[1].length - 2): +d[1];
 				} else {
-					self.properties = properties;
+					this.properties = properties;
 					properties = null;
 				}
 			} else {
-				var d = line.split(' ');
+				const d = line.split(' ');
 				switch (d[0]) {
 				case 'COMMENT': break;
 				case 'FONT':
-					self['FONT'] = d[1];
+					this['FONT'] = d[1];
 					break;
 				case 'SIZE':
-					self['SIZE'] = {
+					this['SIZE'] = {
 						size : +d[1],
 						xres : +d[2],
 						yres : +d[3]
 					};
 					break;
 				case 'FONTBOUNDINGBOX':
-					self['FONTBOUNDINGBOX'] = {
+					this['FONTBOUNDINGBOX'] = {
 						w : +d[1],
 						h : +d[2],
 						x : +d[3],
@@ -89,7 +90,7 @@ BDFFont.prototype = {
 					properties = {};
 					break;
 				case 'CHARS':
-					self['CHARS'] = +d[1];
+					this['CHARS'] = +d[1];
 					break;
 				case 'STARTCHAR':
 					glyph = {};
@@ -99,68 +100,63 @@ BDFFont.prototype = {
 				}
 			}
 		}
-	},
+	}
 
-	getGlyphOf: function (c) {
-		var self = this;
-		return self.glyphs[ c ] || self.glyphs[ self.properties['DEFAULT_CHAR'] ];
-	},
+	getGlyphOf(c) {
+		return this.glyphs[ c ] || this.glyphs[ this.properties['DEFAULT_CHAR'] ];
+	}
 
-	drawChar : function (ctx, c, bx, by, t) {
-		var self = this;
-		var g = this.getGlyphOf(c);
+	drawChar(ctx, c, bx, by, t) {
+		let g = this.getGlyphOf(c);
 		if (t) {
-			var f = function () {};
+			const f = function () {};
 			f.prototype = g;
 			g = new f();
 			g = t(g);
 		}
-		var n = g['BBw'];
-		var b = g['BITMAP'];
-		var ox = bx + g['BBox'] - 1;
-		var oy = by - g['BBoy'] - g['BBh'] + 1;
-		for (var y = 0, len = b.length; y < len; y++) {
-			var l = b[y];
-			for (var i = b.bits, x = 0; i >= 0; i--, x++) {
+		const n = g['BBw'];
+		const b = g['BITMAP'];
+		const ox = bx + g['BBox'] - 1;
+		const oy = by - g['BBoy'] - g['BBh'] + 1;
+		for (let y = 0, len = b.length; y < len; y++) {
+			const l = b[y];
+			for (let i = b.bits, x = 0; i >= 0; i--, x++) {
 				if (l >> i & 0x01 == 1) {
 					ctx.fillRect(ox + x, oy + y, 1, 1);
 				}
 			}
 		}
 		return { x: bx + g['DWIDTH'].x, y : by + g['DWIDTH'].y };
-	},
+	}
 
-	measureText: function (text) {
-		var self = this;
-		var ret = {
+	measureText(text) {
+		const ret = {
 			width: 0,
 			height: 0
 		};
-		for (var i = 0, len = text.length; i < len; i++) {
-			var c = text[i].charCodeAt(0);
-			var g = self.getGlyphOf(c);
+		for (let i = 0, len = text.length; i < len; i++) {
+			const c = text[i].charCodeAt(0);
+			const g = this.getGlyphOf(c);
 			ret.width += g['DWIDTH'].x;
 			ret.height += g['DWIDTH'].y;
 		}
 		return ret;
-	},
+	}
 
-	drawText : function (ctx, text, x, y, t) {
-		var self = this;
-		for (var i = 0, len = text.length; i < len; i++) {
-			var c = text[i].charCodeAt(0);
-			var r = self.drawChar(ctx, c, x, y, t);
+	drawText(ctx, text, x, y, t) {
+		for (let i = 0, len = text.length; i < len; i++) {
+			const c = text[i].charCodeAt(0);
+			const r = this.drawChar(ctx, c, x, y, t);
 			x = r.x; y = r.y;
 		}
 		return { x: x, y: y };
-	},
+	}
 
-	drawEdgeText : function (ctx, text, x, y, t) {
-		var self = this;
-		self.drawText(ctx, text, x, y, function (g) {
-			var bitmap =  new Array(g['BITMAP'].length + 2);
+	drawEdgeText(ctx, text, x, y, t) {
+		this.drawText(ctx, text, x, y, function (g) {
+			const bitmap = new Array(g['BITMAP'].length + 2);
 			bitmap.bits = g['BITMAP'].bits + 2;
-			for (var i = -1, len = bitmap.length; i < len; i++) {
+			for (let i = -1, len = bitmap.length; i < len; i++) {
 				bitmap[i+1] =
 					g['BITMAP'][i]   | g['BITMAP'][i]   >> 1 | g['BITMAP'][i]   >> 2 |
 					g['BITMAP'][i+1] | g['BITMAP'][i+1] >> 1 | g['BITMAP'][i+1] >> 2 |
@@ -172,6 +168,4 @@ BDFFont.prototype = {
 			return g;
 		});
 	}
-};
-
-this.BDFFont = BDFFont;
+}
